@@ -1,8 +1,23 @@
+import numbers
 import statistics
 from math import log, ceil
 from tabulate import tabulate
 
-class StatisticsTable:
+class Table:
+    def print(self):
+        raise NotImplementedError("Method print() not implemented.")
+
+    def format_number(self, value):
+        if isinstance(value, numbers.Number):
+            return f'{value:.1f}'
+        else:
+            return value
+
+    def format_numbers(self, values):
+        return [self.format_number(value) for value in values]
+
+
+class StatisticsTable(Table):
 
     def __init__(self, values = list[float]) -> None:
         self.values = values
@@ -16,12 +31,6 @@ class StatisticsTable:
         self.__calc_statistics()
 
     def print(self):
-        # print(f'Média Aritmética: {self.arithmetic_mean}')
-        # print(f'Média Geométrica: {self.geometric_mean}')
-        # print(f'Moda: {self.mode}')
-        # print(f'Mediana: {self.median}')
-        # print(f'Desvio Padrão da Amostra: {self.sample_stdev}')
-        # print(f'Variância da Amostra: {self.sample_variance}')
 
         statistics = [
             'Média Aritmética',
@@ -43,10 +52,13 @@ class StatisticsTable:
 
         table_data = {
             'Estatística': statistics,
-            'Valor': values
+            'Valor': self.format_numbers(values)
         }
 
-        print(tabulate(table_data, headers='keys', tablefmt='fancy_grid'))
+        print('Tabela de Estatísticas')
+        print(tabulate(table_data, headers='keys', tablefmt='fancy_grid',
+                        colalign=['left', 'right'],
+                        floatfmt='.1f'))
 
     def __calc_mode(self):
         multimodes = statistics.multimode(self.values)
@@ -67,7 +79,7 @@ class StatisticsTable:
         self.sample_variance = statistics.variance(self.values)
 
 
-class FrequencyDistributionTable:
+class FrequencyDistributionTable(Table):
 
     def __init__(self, values: list[float]) -> None:
         self.values = values
@@ -83,26 +95,20 @@ class FrequencyDistributionTable:
         self.__calc_table_data()
     
     def print(self):
-        # print(f'Values: {self.values}')
-        # print(f'Ranges: {self.ranges}')
-        # print(f'Range Pairs: {self.range_pairs}')
-        # print(f'Labels: {self.labels}')
-        # print(f'Frequencies: {self.frequencies}')
-        # print(f'Medians: {self.medians}')
-        # print(f'Accumulated Frequency: {self.freq_acc}')
-        # print(f'Frequencies %: {self.freq_percent}')
-        # print(f'Accumulated Frequency %: {self.freq_percent_acc}')
 
         table_data = {
-            'Valores': self.labels,
-            'Fi': self.frequencies,
-            'xi': self.medians,
-            'Fac': self.freq_acc,
-            'Fi (%)': self.freq_percent,
-            'FacR (%)': self.freq_percent_acc
+            'Valores': self.labels + ['Total'],
+            'Fi': self.frequencies + [sum(self.frequencies)],
+            'xi': self.format_numbers(self.medians + ['-']),
+            'Fac': self.freq_acc + ['-'],
+            'Fi (%)': self.format_numbers(self.freq_percent + [sum(self.freq_percent)]),
+            'FacR (%)': self.format_numbers(self.freq_percent_acc + ['-'])
         }
 
-        print(tabulate(table_data, headers='keys', tablefmt='fancy_grid'))
+        print('Tabela de Distribuição de Frequências')
+        print(tabulate(table_data, headers='keys', tablefmt='fancy_grid',
+                        colalign=('left',) + ('right',) * 5,
+                        floatfmt='.1f'))
 
     def __calc_ranges(self):
         min_value = min(self.values)
@@ -113,7 +119,7 @@ class FrequencyDistributionTable:
         h = ceil(r / k)
 
         ranges = []
-        bound = round(min_value, 1)
+        bound = min_value
 
         while True:    
             ranges.append(bound)
@@ -147,7 +153,7 @@ class FrequencyDistributionTable:
         medians = []
 
         for range in self.range_pairs:
-            median = round((range[0] + range[1]) / 2, 1)
+            median = (range[0] + range[1]) / 2
             medians.append(median)
 
         self.medians = medians
@@ -163,7 +169,7 @@ class FrequencyDistributionTable:
         self.freq_acc = freq_acc
 
     def __calc_freq_percent(self):
-        self.freq_percent = [round(freq / sum(self.frequencies) * 100., 1) 
+        self.freq_percent = [freq / sum(self.frequencies) * 100.
                                 for freq in self.frequencies]
 
     def __calc_freq_percent_acc(self):
