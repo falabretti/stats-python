@@ -29,3 +29,4 @@ print()
 
 frequency_distribution_table = FrequencyDistributionTable(values)
 frequency_distribution_table.print()
+frequency_distribution_table.show_frequency_polygon()

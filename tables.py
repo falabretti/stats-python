@@ -1,5 +1,6 @@
 import numbers
 import statistics
+import matplotlib.pyplot as plt
 from math import log, ceil
 from tabulate import tabulate
 
@@ -83,6 +84,7 @@ class FrequencyDistributionTable(Table):
 
     def __init__(self, values: list[float]) -> None:
         self.values = values
+        self.h = None
         self.ranges = None
         self.range_pairs = None
         self.labels = None
@@ -110,6 +112,26 @@ class FrequencyDistributionTable(Table):
                         colalign=('left',) + ('right',) * 5,
                         floatfmt='.1f'))
 
+    def show_frequency_polygon(self):
+        x_prev = self.medians[0] - self.h
+        x_next = self.medians[-1] + self.h
+
+        x_values = [x_prev] + self.medians + [x_next]
+        y_values = [0] + self.frequencies + [0]
+
+        y_top = (max(y_values) - min(y_values)) * 0.1
+
+        plt.xlim(min(x_values) - self.h, max(x_values) + self.h)
+        plt.ylim(min(y_values), max(y_values) + y_top)
+        plt.plot(x_values, y_values, marker='o')
+
+        plt.xlabel('Valores')
+        plt.ylabel('Frequência')
+        plt.title('Polígono de Frequências dos Valores')
+        
+        plt.grid(axis='y')
+        plt.show()
+
     def __calc_ranges(self):
         min_value = min(self.values)
         max_value = max(self.values)
@@ -117,6 +139,8 @@ class FrequencyDistributionTable(Table):
         r = max_value - min_value
         k = 1 + 3.22 * log(len(self.values), 10)
         h = ceil(r / k)
+
+        self.h = h
 
         ranges = []
         bound = min_value
