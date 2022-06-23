@@ -93,6 +93,7 @@ class FrequencyDistributionTable(Table):
         self.freq_acc = None
         self.freq_percent = None
         self.freq_percent_acc = None
+        self.weighted_mean = None
 
         self.__calc_table_data()
     
@@ -158,7 +159,7 @@ class FrequencyDistributionTable(Table):
         self.ranges = ranges
         self.range_pairs = range_pairs
 
-        self.labels = [f'{pair[0]} ├ {pair[1]}' for pair in self.range_pairs]
+        self.labels = [f'{pair[0]:.1f} ├ {pair[1]:.1f}' for pair in self.range_pairs]
 
     def __calc_frequencies(self):
         frequencies = []
@@ -206,6 +207,14 @@ class FrequencyDistributionTable(Table):
 
         self.freq_percent_acc = freq_percent_acc
 
+    def __calc_weighted_mean(self):
+
+        products = [self.frequencies[idx] * self.medians[idx]
+                    for idx in range(len(self.frequencies))]
+
+        weighted_mean = sum(products) / sum(self.frequencies)
+        self.weighted_mean = weighted_mean
+
     def __calc_table_data(self):
         self.__calc_ranges()
         self.__calc_frequencies()
@@ -213,4 +222,5 @@ class FrequencyDistributionTable(Table):
         self.__calc_freq_acc()
         self.__calc_freq_percent()
         self.__calc_freq_percent_acc()
+        self.__calc_weighted_mean()
         

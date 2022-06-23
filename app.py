@@ -29,4 +29,7 @@ print()
 
 frequency_distribution_table = FrequencyDistributionTable(values)
 frequency_distribution_table.print()
+
+print(f'\nMédia Ponderada: {frequency_distribution_table.weighted_mean:.1f}')
+
 frequency_distribution_table.show_frequency_polygon()
