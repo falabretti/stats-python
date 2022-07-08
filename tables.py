@@ -130,6 +130,9 @@ class FrequencyDistributionTable(Table):
         plt.ylabel('Frequência')
         plt.title('Polígono de Frequências dos Valores')
         
+        for x, y in zip(x_values[1:-1], y_values[1:-1]):
+            plt.annotate(y, (x, y), textcoords="offset points", xytext=(0, 10), ha='center')
+        
         plt.grid(axis='y')
         plt.show()
 
